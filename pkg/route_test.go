@@ -91,9 +91,18 @@ func TestHttpRoute_MethodHandleFunc(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	root.HandleFuncMethod(stubStatusNotImplementedHandle)
-	r1.HandleFuncMethod(stubStatusOKHandle, http.MethodGet)
-	r2.HandleFuncMethod(stubStatusOKHandle, http.MethodPost)
+	err = root.HandleFuncMethod("", "", stubStatusNotImplementedHandle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = r1.HandleFuncMethod(http.MethodGet, "", stubStatusOKHandle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = r2.HandleFuncMethod(http.MethodPost, "", stubStatusOKHandle)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	res := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, r1.Url(), bytes.NewBufferString(payloadLevel1))
