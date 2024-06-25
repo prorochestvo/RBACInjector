@@ -130,11 +130,11 @@ func TestHttpRoute_MethodHandleFunc(t *testing.T) {
 	}
 }
 
-func TestHttpRoute_AllowFor(t *testing.T) {
+func TestHttpRoute_HandleFuncAllowFor(t *testing.T) {
 	t.Skipf("not implemented")
 }
 
-func TestHttpRoute_DenyFor(t *testing.T) {
+func TestHttpRoute_HandleFuncDenyFor(t *testing.T) {
 	t.Skipf("not implemented")
 }
 

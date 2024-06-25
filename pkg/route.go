@@ -1,7 +1,6 @@
 package rbacinjector
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -9,10 +8,10 @@ import (
 
 type HttpRoute[T RoleID] interface {
 	Url() string
-	NextRoute(urlSuffix ...string) (HttpRoute[T], error)
+	NextRoute(path ...string) (HttpRoute[T], error)
 	HandleFuncMethod(handler http.HandlerFunc, methods ...string)
-	AllowFor(method string, handler http.HandlerFunc, roles ...Role[T])
-	DenyFor(method string, handler http.HandlerFunc, roles ...Role[T])
+	HandleFuncAllowFor(method string, handler http.HandlerFunc, roles ...Role[T])
+	HandleFuncDenyFor(method string, handler http.HandlerFunc, roles ...Role[T])
 }
 
 type httpRoute[T RoleID] struct {
@@ -33,8 +32,8 @@ func newHttpRoute[T RoleID](server *HttpRouter[T], prefixes ...string) (HttpRout
 	return r, nil
 }
 
-func (r *httpRoute[T]) NextRoute(urlSuffix ...string) (HttpRoute[T], error) {
-	urlPath, err := url.JoinPath(r.urlPrefix, urlSuffix...)
+func (r *httpRoute[T]) NextRoute(path ...string) (HttpRoute[T], error) {
+	urlPath, err := url.JoinPath(r.urlPrefix, path...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,24 +45,20 @@ func (r *httpRoute[T]) Url() string {
 	return r.urlPrefix
 }
 
-func (r *httpRoute[T]) HandleFuncMethod(handler http.HandlerFunc, method ...string) {
-	if len(method) > 0 {
-		for _, m := range method {
-			r.server.ServeMux.HandleFunc(r.pattern(m, r.urlPrefix), handler)
+func (r *httpRoute[T]) HandleFuncMethod(handler http.HandlerFunc, methods ...string) {
+	if len(methods) > 0 {
+		for _, method := range methods {
+			r.server.ServeMux.HandleFunc(strings.TrimSpace(method+" "+r.urlPrefix), handler)
 		}
 	} else {
-		r.server.ServeMux.HandleFunc(r.pattern("", r.urlPrefix), handler)
+		r.server.ServeMux.HandleFunc(strings.TrimSpace(r.urlPrefix), handler)
 	}
 }
 
-func (r *httpRoute[T]) AllowFor(method string, handler http.HandlerFunc, roles ...Role[T]) {
-	r.server.HandleFuncAllowFor(r.pattern(method, r.urlPrefix), handler, roles...)
+func (r *httpRoute[T]) HandleFuncAllowFor(method string, handler http.HandlerFunc, roles ...Role[T]) {
+	r.server.HandleFuncAllowFor(strings.TrimSpace(method+" "+r.urlPrefix), handler, roles...)
 }
 
-func (r *httpRoute[T]) DenyFor(method string, handler http.HandlerFunc, roles ...Role[T]) {
-	r.DenyFor(method, handler, roles...)
-}
-
-func (r *httpRoute[T]) pattern(method, urlPath string) string {
-	return strings.TrimSpace(fmt.Sprintf("%s %s", method, urlPath))
+func (r *httpRoute[T]) HandleFuncDenyFor(method string, handler http.HandlerFunc, roles ...Role[T]) {
+	r.server.HandleFuncDenyFor(strings.TrimSpace(method+" "+r.urlPrefix), handler, roles...)
 }

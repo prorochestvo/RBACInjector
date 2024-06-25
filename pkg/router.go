@@ -62,6 +62,11 @@ func (r *HttpRouter[T]) HandleFuncDenyFor(pattern string, handler http.HandlerFu
 	r.ServeMux.HandleFunc(pattern, f)
 }
 
+// NewRoute returns a new HttpRoute.
+func (r *HttpRouter[T]) NewRoute(path ...string) (HttpRoute[T], error) {
+	return newHttpRoute(r, path...)
+}
+
 // AllowFor returns a new handler that checks if the role is contained in the roles.
 func AllowFor[T RoleID](roleExtractor RoleExtractor[T], handler http.HandlerFunc, unauthorizedResponseFunc ErrorResponseFunc, forbiddenResponseFunc ErrorResponseFunc, roles ...Role[T]) http.HandlerFunc {
 	return process[T](true, roleExtractor, handler, unauthorizedResponseFunc, forbiddenResponseFunc, roles...)
