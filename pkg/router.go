@@ -13,7 +13,7 @@ func NewHttpRouter[T RoleID](roleExtractor RoleExtractor[T]) (*HttpRouter[T], er
 		roleExtractor:            roleExtractor,
 		forbiddenResponseFunc:    func(w http.ResponseWriter, _ context.Context) { w.WriteHeader(http.StatusForbidden) },
 		unauthorizedResponseFunc: func(w http.ResponseWriter, _ context.Context) { w.WriteHeader(http.StatusUnauthorized) },
-		ServeMux:                 *http.NewServeMux(),
+		ServeMux:                 http.NewServeMux(),
 	}
 	return r, nil
 }
@@ -23,7 +23,7 @@ type HttpRouter[T RoleID] struct {
 	roleExtractor            RoleExtractor[T]
 	forbiddenResponseFunc    ErrorResponseFunc
 	unauthorizedResponseFunc ErrorResponseFunc
-	http.ServeMux
+	*http.ServeMux
 }
 
 // SetForbiddenResponseFunc sets the function that is called when the role is not contained in the roles.
