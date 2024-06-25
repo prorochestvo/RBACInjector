@@ -313,13 +313,13 @@ func (r stubRoleSTR) ID() string {
 
 const contextRoleKey = "role"
 
-func extractorINT(_ http.ResponseWriter, r *http.Request) (role Role[uint64], exists bool) {
+func extractorINT(r *http.Request) (role Role[uint64], exists bool) {
 	val := r.Context().Value(contextRoleKey)
 	role, exists = val.(Role[uint64])
 	return
 }
 
-func extractorSTR(_ http.ResponseWriter, r *http.Request) (role Role[string], exists bool) {
+func extractorSTR(r *http.Request) (role Role[string], exists bool) {
 	val := r.Context().Value(contextRoleKey)
 	role, exists = val.(Role[string])
 	return

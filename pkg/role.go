@@ -6,7 +6,7 @@ import (
 )
 
 // RoleExtractor is a function that extracts the role from the request.
-type RoleExtractor[T RoleID] func(w http.ResponseWriter, r *http.Request) (role Role[T], exists bool)
+type RoleExtractor[T RoleID] func(r *http.Request) (role Role[T], exists bool)
 
 // RoleID is the interface that wraps the basic ID method.
 // The ID is an uint64 or a string.

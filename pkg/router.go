@@ -83,7 +83,7 @@ func process[T RoleID](
 ) http.HandlerFunc {
 	validator := newRoleValidator(roles)
 	return func(w http.ResponseWriter, r *http.Request) {
-		if role, exists := roleExtractor(w, r); !exists || role == nil {
+		if role, exists := roleExtractor(r); !exists || role == nil {
 			unauthorizedResponseFunc(w, r.Context())
 			w.WriteHeader(http.StatusUnauthorized)
 			return
