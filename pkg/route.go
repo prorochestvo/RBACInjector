@@ -26,7 +26,7 @@ func newHttpRoute[T RoleID](server *HttpRouter[T], prefixes ...string) (HttpRout
 	}
 
 	r := &httpRoute[T]{
-		urlPrefix: urlPath,
+		urlPrefix: strings.TrimSpace(urlPath),
 		server:    server,
 	}
 	return r, nil
@@ -46,12 +46,17 @@ func (r *httpRoute[T]) Url() string {
 }
 
 func (r *httpRoute[T]) HandleFuncMethod(method string, suffix string, handler http.HandlerFunc) error {
-	path, err := url.JoinPath(r.urlPrefix, suffix)
+	path, err := url.JoinPath(r.urlPrefix, strings.TrimSpace(suffix))
 	if err != nil {
 		return err
 	}
 
-	r.server.HandleFunc(strings.TrimSpace(method+" "+path), handler)
+	if path != "/" && strings.HasSuffix(path, "/") {
+		path = strings.TrimSuffix(path, "/")
+	}
+	pattern := strings.TrimSpace(method + " " + path)
+
+	r.server.HandleFunc(pattern, handler)
 
 	return nil
 }
