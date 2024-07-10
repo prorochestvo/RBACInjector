@@ -91,15 +91,15 @@ func TestHttpRoute_MethodHandleFunc(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = root.HandleFuncMethod("", "", stubStatusNotImplementedHandle)
+	err = root.HandleFunc("", stubStatusNotImplementedHandle)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = r1.HandleFuncMethod(http.MethodGet, "", stubStatusOKHandle)
+	err = r1.HandleFunc(http.MethodGet+" /", stubStatusOKHandle)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = r2.HandleFuncMethod(http.MethodPost, "", stubStatusOKHandle)
+	err = r2.HandleFunc(http.MethodPost+" /", stubStatusOKHandle)
 	if err != nil {
 		t.Fatal(err)
 	}
