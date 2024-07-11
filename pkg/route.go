@@ -2,7 +2,6 @@ package rbacinjector
 
 import (
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -21,25 +20,29 @@ type httpRoute[T RoleID] struct {
 	server    *HttpRouter[T]
 }
 
-func newHttpRoute[T RoleID](server *HttpRouter[T], prefixes ...string) (HttpRoute[T], error) {
-	urlPath, err := url.JoinPath("/", prefixes...)
-	if err != nil {
-		return nil, err
+func newHttpRoute[T RoleID](server *HttpRouter[T], p ...string) (HttpRoute[T], error) {
+	path := "/" + strings.Join(p, "/")
+	path = strings.ReplaceAll(path, "//", "/")
+	path = strings.TrimSuffix(path, "/")
+	if path == "" {
+		path = "/"
 	}
 
 	r := &httpRoute[T]{
-		urlPrefix: strings.TrimSpace(urlPath),
+		urlPrefix: strings.TrimSpace(path),
 		server:    server,
 	}
 	return r, nil
 }
 
-func (r *httpRoute[T]) NextRoute(path ...string) (HttpRoute[T], error) {
-	urlPath, err := url.JoinPath(r.urlPrefix, path...)
-	if err != nil {
-		return nil, err
+func (r *httpRoute[T]) NextRoute(p ...string) (HttpRoute[T], error) {
+	path := r.urlPrefix + "/" + strings.Join(p, "/")
+	path = strings.ReplaceAll(path, "//", "/")
+	path = strings.TrimSuffix(path, "/")
+	if path == "" {
+		path = "/"
 	}
-	nextRoute := &httpRoute[T]{urlPrefix: urlPath, server: r.server}
+	nextRoute := &httpRoute[T]{urlPrefix: path, server: r.server}
 	return nextRoute, nil
 }
 
@@ -85,14 +88,11 @@ func (r *httpRoute[T]) Pattern(pattern ...string) (string, error) {
 	}
 
 	// combine url path
-	path, err := url.JoinPath(r.urlPrefix, path)
-	if err != nil {
-		return "", err
-	}
-
-	// remove trailing slash if not root
-	if path != "/" && strings.HasSuffix(path, "/") {
-		path = strings.TrimSuffix(path, "/")
+	path = r.urlPrefix + "/" + path
+	path = strings.ReplaceAll(path, "//", "/")
+	path = strings.TrimSuffix(path, "/")
+	if path == "" {
+		path = "/"
 	}
 
 	// return final pattern
